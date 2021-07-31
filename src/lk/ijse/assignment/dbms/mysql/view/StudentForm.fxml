@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+
+<AnchorPane prefHeight="661.0" prefWidth="539.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="lk.ijse.assignment.dbms.mysql.controller.StudentFormController">
+   <children>
+      <Pane layoutX="14.0" layoutY="14.0" prefHeight="262.0" prefWidth="391.0" style="-fx-border-color: #b3b3b3; -fx-border-radius: 5;" AnchorPane.bottomAnchor="385.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
+      <TextField fx:id="txtId" layoutX="27.0" layoutY="25.0" prefHeight="26.0" prefWidth="366.0" promptText="ID" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0" />
+      <TextField fx:id="txtName" layoutX="27.0" layoutY="70.0" prefHeight="26.0" prefWidth="366.0" promptText="Name" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="70.0" />
+      <TextField fx:id="txtPhone" layoutX="27.0" layoutY="120.0" prefHeight="26.0" prefWidth="366.0" promptText="Phone" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="120.0" />
+       <Button fx:id="btnAdd" layoutX="284.0" layoutY="177.0" mnemonicParsing="false" onAction="#btnAdd_OnAction" prefHeight="26.0" prefWidth="110.0" text="Add" AnchorPane.rightAnchor="20.0" />
+       <ListView fx:id="lstPhone" layoutX="27.0" layoutY="148.0" prefHeight="113.0" prefWidth="247.0" AnchorPane.bottomAnchor="400.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="147.5" AnchorPane.topAnchor="150.0" />
+      <Button fx:id="btnRemove" layoutX="284.0" layoutY="212.0" mnemonicParsing="false" onAction="#btnRemove_OnAction" prefHeight="26.0" prefWidth="110.0" text="Remove" AnchorPane.rightAnchor="20.0" />
+       <Button fx:id="btnClear" layoutX="378.0" layoutY="285.0" mnemonicParsing="false" onAction="#btnClear_OnAction" prefHeight="26.0" prefWidth="110.0" text="Clear" AnchorPane.rightAnchor="20.0" />
+       <Button fx:id="btnAddStudent" layoutX="225.0" layoutY="339.0" mnemonicParsing="false" onAction="#btnAddStudent_OnAction" prefHeight="26.0" prefWidth="141.0" text="Add Student" />
+       <Button fx:id="btnRemoveStudent" layoutX="378.0" layoutY="339.0" mnemonicParsing="false" onAction="#btnRemoveStudent_OnAction" prefHeight="26.0" prefWidth="141.0" text="Remove Student" AnchorPane.rightAnchor="20.0" />
+       <TableView fx:id="tblStudents" layoutX="27.0" layoutY="366.0" prefHeight="262.0" prefWidth="366.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0">
+           <columns>
+              <TableColumn prefWidth="88.0" text="ID" />
+              <TableColumn prefWidth="224.0" text="Name" />
+              <TableColumn prefWidth="171.0" text="Contact Numbers" />
+          </columns>
+       </TableView>
+   </children>
+</AnchorPane>
