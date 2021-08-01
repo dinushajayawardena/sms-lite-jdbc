@@ -2,11 +2,9 @@ package lk.ijse.assignment.dbms.mysql.controller;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import lk.ijse.assignment.dbms.mysql.model.Student;
@@ -60,7 +58,7 @@ public class StudentFormController {
 
         tblStudents.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
         tblStudents.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("name"));
-        tblStudents.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("phone"));
+        tblStudents.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("phones"));
 
         try {
             Statement stm = connection.createStatement();
@@ -102,6 +100,37 @@ public class StudentFormController {
         btnAdd.setDisable(true);
         btnRemove.setDisable(true);
 
+        ViewAll();
+
+    }
+
+    private void ViewAll() {
+        try {
+            Statement stm = connection.createStatement();
+
+            ResultSet rst = stm.executeQuery("SELECT * FROM students");
+
+            while (rst.next()){
+                int id =  rst.getInt("id");
+                String name = rst.getString("name");
+             /*   tblStudents.getItems().add(new Student(id, name));*/
+
+                PreparedStatement pstm = connection.prepareStatement("SELECT * FROM contacts WHERE student_id = '" + id + "';");
+                ResultSet rst2 = pstm.executeQuery();
+
+
+                ArrayList<String> phoneNumbers = new ArrayList<>();
+                while (rst2.next()){
+                    String phone = rst2.getString("phone");
+                    phoneNumbers.add(phone);
+                }
+                tblStudents.getItems().add(new Student(id, name, phoneNumbers));
+
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     public void btnAdd_OnAction(ActionEvent actionEvent) {
@@ -119,6 +148,25 @@ public class StudentFormController {
     }
 
     public void btnAddStudent_OnAction(ActionEvent actionEvent) {
+        String name = txtName.getText();
+        int id = Integer.parseInt(txtId.getText());
+        try {
+            PreparedStatement pstm_students = connection.prepareStatement("INSERT INTO students (name) VALUES ('"+ name +"');");
+            int affectedRows = pstm_students.executeUpdate();
+
+            if (affectedRows == 1){
+                tblStudents.getItems().add(new Student(id, name));
+                btnClear.fire();
+            }
+
+            PreparedStatement pstm_contacts = null;
+
+
+
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
 
     }
 

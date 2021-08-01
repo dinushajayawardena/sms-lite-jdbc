@@ -1,17 +1,26 @@
 package lk.ijse.assignment.dbms.mysql.model;
 
-public class Student {
+import java.io.Serializable;
+import java.util.ArrayList;
+
+public class Student implements Serializable {
     private int id;
     private String name;
-    private String phone;
+    private ArrayList phones;
 
     public Student() {
     }
 
-    public Student(int id, String name, String phone) {
+    public Student(int id, String name) {
         this.id = id;
         this.name = name;
-        this.phone = phone;
+
+    }
+
+    public Student(int id, String name, ArrayList phones) {
+        this.id = id;
+        this.name = name;
+        this.phones = phones;
     }
 
     public int getId() {
@@ -30,20 +39,19 @@ public class Student {
         this.name = name;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
     @Override
     public String toString() {
         return "Student{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", phone='" + phone + '\'' +
                 '}';
+    }
+
+    public ArrayList getPhones() {
+        return phones;
+    }
+
+    public void setPhones(ArrayList phones) {
+        this.phones = phones;
     }
 }
