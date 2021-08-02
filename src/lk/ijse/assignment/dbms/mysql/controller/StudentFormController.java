@@ -29,22 +29,16 @@ public class StudentFormController {
     public Button btnAddStudent;
     public Button btnClear;
     private Connection connection;
-    private ObservableList<String> phones = FXCollections.observableArrayList();
-    private ObservableList<String> test = FXCollections.observableArrayList();
+    private final ObservableList<String> phones = FXCollections.observableArrayList();
+    private final ObservableList<String> test = FXCollections.observableArrayList();
 
-    public void initialize(){
+    public void initialize() {
 
         txtId.setEditable(false);
         txtId.setFocusTraversable(false);
         txtId.setMouseTransparent(true);
 
-        test.add("ABC");
-        test.add("PQR");
-        test.add("SYZ");
-        test.add("123");
-        test.add("456");
-
-        Platform.runLater(()->{
+        Platform.runLater(() -> {
 
             txtName.requestFocus();
             lstPhone.setItems(phones);
@@ -78,26 +72,11 @@ public class StudentFormController {
             ListView studentContactList = new ListView();
             studentContactList.setPrefWidth(10);
             studentContactList.setPrefHeight(80);
-            studentContactList.setItems(phones);
-
 
             return new ReadOnlyObjectWrapper(new VBox(2, studentContactList));
         });
 
-        try {
-            Statement stm = connection.createStatement();
-            ResultSet rst = stm.executeQuery("SELECT id FROM students ORDER BY id DESC LIMIT 1");
-
-            int dbId = 0;
-            while (rst.next()){
-                dbId = rst.getInt("id");
-
-            }
-            txtId.setText(String.valueOf(dbId+1));
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        txtId.setText(String.valueOf(generateId()));
 
         ChangeListener<String> listener = (observable, oldValue, newValue) -> {
             String name = txtName.getText();
@@ -108,11 +87,7 @@ public class StudentFormController {
         };
 
         lstPhone.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null){
-                btnRemove.setDisable(false);
-            }else {
-                btnRemove.setDisable(true);
-            }
+            btnRemove.setDisable(newValue == null);
         });
 
         txtName.textProperty().addListener(listener);
@@ -127,18 +102,45 @@ public class StudentFormController {
         ViewAll();
 
         tblStudents.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null){
+            if (newValue != null) {
+                txtId.setText(String.valueOf(newValue.getId()));
+                txtName.setText(newValue.getName());
                 btnRemoveStudent.setDisable(false);
+            } else {
+                btnClear.fire();
             }
         });
 
         tblStudents.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue){
-               // btnRemoveStudent.setDisable(true);
-                   // tblStudents.getSelectionModel().clearSelection();
+            if (!newValue && !(txtName.getText().matches("[A-Za-z ]{3,}"))) {
+                btnAddStudent.setText(" Add Student");
+                btnAddStudent.setDisable(true);
+            } else if (!newValue) {
+                btnAddStudent.setText(" Add Student");
+            } else {
+                btnAddStudent.setText(" Update Student");
+                btnAddStudent.setDisable(false);
             }
         });
 
+    }
+
+    public int generateId() {
+        int dbId = 0;
+        try {
+            Statement stm = connection.createStatement();
+            //ResultSet rst = stm.executeQuery("SELECT id FROM students ORDER BY id DESC LIMIT 1");
+            ResultSet rst = stm.executeQuery("SELECT AUTO_INCREMENT FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'students' AND TABLE_SCHEMA = 'smslite'");
+
+            while (rst.next()) {
+                dbId = rst.getInt(1);
+            }
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return dbId + 1;
     }
 
     private void ViewAll() {
@@ -147,17 +149,17 @@ public class StudentFormController {
 
             ResultSet rst = stm.executeQuery("SELECT * FROM students");
 
-            while (rst.next()){
-                int id =  rst.getInt("id");
+            while (rst.next()) {
+                int id = rst.getInt("id");
                 String name = rst.getString("name");
-             /*   tblStudents.getItems().add(new Student(id, name));*/
+                /*   tblStudents.getItems().add(new Student(id, name));*/
 
                 PreparedStatement pstm = connection.prepareStatement("SELECT * FROM contacts WHERE student_id = '" + id + "';");
                 ResultSet rst2 = pstm.executeQuery();
 
 
                 ArrayList<String> phoneNumbers = new ArrayList<>();
-                while (rst2.next()){
+                while (rst2.next()) {
                     String phone = rst2.getString("phone");
                     phoneNumbers.add(phone);
                 }
@@ -177,7 +179,7 @@ public class StudentFormController {
     }
 
     public void btnRemove_OnAction(ActionEvent actionEvent) {
-       phones.remove(lstPhone.getSelectionModel().getSelectedItem());
+        phones.remove(lstPhone.getSelectionModel().getSelectedItem());
         lstPhone.getSelectionModel().clearSelection();
     }
 
@@ -188,44 +190,66 @@ public class StudentFormController {
             PreparedStatement pstm = connection.prepareStatement("DELETE FROM contacts WHERE student_id = '" + id + "';");
             int affectedRows = pstm.executeUpdate();
 
-            if (affectedRows == 1){
+            if (affectedRows == 1) {
                 tblStudents.getItems().remove(selectedItem);
                 tblStudents.refresh();
                 btnClear.fire();
             }
             affectedRows = 0;
 
-            pstm = connection.prepareStatement("DELETE FROM students WHERE id = '"+ id +"';");
+            pstm = connection.prepareStatement("DELETE FROM students WHERE id = '" + id + "';");
             affectedRows = pstm.executeUpdate();
 
-            if (affectedRows == 1){
+            if (affectedRows == 1) {
                 tblStudents.getItems().remove(selectedItem);
                 tblStudents.refresh();
                 btnClear.fire();
+                txtId.setText(String.valueOf(generateId()));
             }
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+
     }
 
     public void btnAddStudent_OnAction(ActionEvent actionEvent) {
         String name = txtName.getText();
         int id = Integer.parseInt(txtId.getText());
-        try {
-            PreparedStatement pstm_students = connection.prepareStatement("INSERT INTO students (name) VALUES ('"+ name +"');");
-            int affectedRows = pstm_students.executeUpdate();
+        Student selectedStudent = tblStudents.getSelectionModel().getSelectedItem();
+        ArrayList<String> phoneNumbers = new ArrayList<>();
 
-            if (affectedRows == 1){
-                tblStudents.getItems().add(new Student(id, name));
+        if (btnAddStudent.getText().equals("Update Student")) {
+
+        } else {
+            try {
+                PreparedStatement pstm_students = connection.prepareStatement("INSERT INTO students (name) VALUES ('" + name + "');");
+                int affectedRows = pstm_students.executeUpdate();
+
+                if (affectedRows == 1) {
+
+                    for (String phoneNumber : phones) {
+                        PreparedStatement pstmContacts = connection.prepareStatement("INSERT INTO contacts (student_id, phone) VALUES ('" + id + "', '" + phoneNumber + "');");
+                        int affectedRows2 = pstmContacts.executeUpdate();
+
+                        if (affectedRows2 == 1) {
+                            phoneNumbers.add(phoneNumber);
+
+                        } else {
+                            System.out.println("error");
+                        }
+
+                    }
+                    tblStudents.getItems().add(new Student(id, name, phoneNumbers));
+                } else {
+                    new Alert(Alert.AlertType.ERROR, "Failed to add student").show();
+                }
+
+                phoneNumbers.clear();
                 btnClear.fire();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
             }
-
-            PreparedStatement pstm_contacts = null;
-
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
         }
 
     }
